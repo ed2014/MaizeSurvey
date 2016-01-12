@@ -1,0 +1,421 @@
+---
+title: "Analysis Maize Survey 2015"
+output: word_document
+---
+> ----------------------
+
+## General 
+
+* DRAFT in confidence (please do not distribute)
+
+* Online survey by FAR & PFR 2015
+
+## Current assumptions (to be revised after revision as necessary)
+
+* CRM and yield values assumed as MEAN of the range (e.g. 20 t/ha for the 18 to 22 kg/ha range) 
+* If MEAN = MAX or MEAN = MIN , then assume that min and max yields are the ones from the range selected
+
+
+```{r Libs, echo=FALSE, include=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(lubridate)
+```
+
+
+
+```{r LoadData, echo=FALSE, include=FALSE}
+
+setwd("\\\\Lindfs12\\home$\\Cfleit\\My Documents\\Projects\\2015_MaizeSurveyFAR")
+getwd()
+
+data_clean <- read.table("DataCleanAndWorked.txt",header=TRUE)
+head(data_clean)
+summary (data_clean)
+
+```
+
+
+## Overal stats
+
+
+* We had 106 responses across New Zealand.
+
+* The map shows the "aproximate" location of respondents
+
+![My Figure](RespondentMap.png)
+
+## Number of respondents by region
+
+```{r General, echo=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+  group_by(RegionName) %>%
+  summarise(count = n()) %>%
+  mutate(RegionName =  reorder(RegionName, count)) %>%
+  ggplot(aes(x=RegionName, y=count)) +
+  geom_bar(stat="identity") +
+  coord_flip() 
+
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(RegionName) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$RegionName," (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Regions")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+
+```
+
+##  Altitude of maize producing areas (m asl) - descending order
+
+```{r Altitude, echo=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+ # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+  group_by(Altitude_m_asl) %>%
+  summarise(obsCount = n()) %>%
+  mutate(Altitude_m_asl =  reorder(Altitude_m_asl, obsCount)) %>%
+  ggplot(aes(x=Altitude_m_asl, y=obsCount)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  xlab("Altitude above sea level (m)") +
+  ylab("Number of producers") 
+
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(Altitude_m_asl) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$Altitude_m_asl," m (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Altitude above sea level (m)")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+
+# distribution
+data_clean %>%
+ # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+  group_by(Altitude_m_asl) %>%
+  summarise(obsCount = n()) %>%
+#  mutate(Altitude_m_asl =  reorder(Altitude_m_asl, obsCount)) %>%
+  ggplot(aes(x=Altitude_m_asl, y=obsCount)) +
+  geom_line() +
+  xlab("Altitude above sea level (m)") +
+  ylab("Number of producers") 
+
+
+```
+
+
+## Years as a maize producer - descending order of categories
+
+
+```{r YearsAsProducer, echo=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+ # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+  group_by(YearsAsProducer) %>%
+  summarise(obsCount = n()) %>%
+  mutate(YearsAsProducer =  reorder(YearsAsProducer, obsCount)) %>%
+  ggplot(aes(x=YearsAsProducer, y=obsCount)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  xlab("Years in production") +
+  ylab("Number of producers") 
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(YearsAsProducer) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$YearsAsProducer," years (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Years in maize silage production")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+
+```
+
+
+## Producers per cultivation method
+
+```{r CultivationType, echo=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+ # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+  group_by(CultivationType) %>%
+  summarise(obsCount = n()) %>%
+  mutate(CultivationType =  reorder(CultivationType, obsCount)) %>%
+  ggplot(aes(x=CultivationType, y=obsCount)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  xlab("Cultivation type") +
+  ylab("Number of producers") 
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(CultivationType) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$CultivationType," cultivation (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Cultivation method")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+
+```
+
+
+## Average percentage area of maize under irrigation per region
+
+* n shows number of producers per region
+* error bars are 0.25 and 0.75 percentiles
+
+
+```{r Irrigation, echo=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+  group_by(RegionName) %>%
+  summarise(obsCount = n(),irrig = mean(IrrigatedPercent), 
+            mn = quantile(IrrigatedPercent, 0.25),
+            mx = quantile(IrrigatedPercent, 0.75)) %>%
+ # summarise(irrig = mean(IrrigatedPercent)) %>%
+  mutate(RegionName =  reorder(RegionName, irrig)) %>%
+  ggplot(aes(x=RegionName, y=irrig)) +
+  geom_bar(stat="identity") +
+  coord_flip()  +
+  ylab("Percentage irrigated area") +
+  geom_text(aes(label = paste0("n=",obsCount), y = irrig+5)) +
+  geom_errorbar(aes(ymax = mx, ymin = mn), 
+                position=position_dodge(width=0.9), width=0.25)
+
+```
+
+## Average percentage area of maize for silage per region
+
+```{r SilageArea, echo=FALSE,fig.height=10, fig.width=8}
+data_clean %>%
+  group_by(RegionName) %>%
+   summarise(obsCount = n(),sil = mean(SilagePercent), 
+            mn = quantile(SilagePercent, 0.25),
+            mx = quantile(SilagePercent, 0.75)) %>%
+  # summarise(sil = mean(SilagePercent)) %>%
+  mutate(RegionName =  reorder(RegionName, sil)) %>%
+  ggplot(aes(x=RegionName, y=sil)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ylab("Percentage silage area")+
+  geom_text(aes(label = paste0("n=",obsCount), y = sil+5)) +
+  geom_errorbar(aes(ymax = mx, ymin = mn), 
+                position=position_dodge(width=0.9), width=0.25)
+```
+
+## Sowing dates 
+
+* Earliest, most common and Latest
+
+```{r sowDate, echo=FALSE, warning=FALSE,fig.height=10, fig.width=8}
+
+# in facets
+data_clean %>%
+  dplyr::select(RegionName, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.2)) +
+  geom_jitter(aes(colour=Category)) +
+  facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + theme(legend.position="none")
+
+
+```
+
+## Factors that delay maize sowing
+
+```{r DelaySowFact, echo=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+  dplyr::select(RegionName, ColdTemp, WetSoil, DrySoil, NoMachine, FrostRisk) %>%
+  tidyr::gather("DelayFactor","n", 2:6) %>%
+  mutate(DelayFactor =  reorder(DelayFactor, n)) %>%
+  ggplot(aes(x=DelayFactor, y=n)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  facet_wrap(~RegionName) +
+  xlab("Factor") +
+  ylab("Number of producers") 
+
+```
+
+## Genotypes used 
+
+* MIN and MAX Comparative Relative Maturity score (CRM) 
+
+
+```{r CRM, echo=FALSE, warning=FALSE,fig.height=10, fig.width=8}
+
+#bar 
+data_clean %>%
+  dplyr::select(RegionName, CRM_max, CRM_min) %>%
+  tidyr::gather("CRMcat","value", 2:3) %>%
+  mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.1)) +
+  coord_flip() +
+  facet_grid(CRMcat~.)+
+  geom_jitter(aes(colour=RegionName)) +
+  ylab("CRMs") +
+  xlab("Region") + theme(legend.position="none")
+
+
+```
+
+## Silage Yields 
+
+* lowest, average and highest values
+
+```{r SilageYield, echo=FALSE, warning=FALSE, fig.height=10, fig.width=8}
+
+data_clean %>%
+  dplyr::select(RegionName, Silage_Yield_Low_Adj, Silage_Yield_Med_Adj,Silage_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.5)) +
+  coord_flip() +
+  facet_grid(Category~.) +
+  geom_jitter(aes(alpha=0.8, shape  = RegionName, colour=RegionName)) + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0))  + 
+  theme(legend.position="top") +
+  ylab(" Silage yield (t/ha)") + theme(legend.position="none")
+```
+
+## Grain Yields 
+
+* lowest, average and highest values
+
+```{r grainYield, echo=FALSE, warning=FALSE,fig.height=10, fig.width=8}
+
+data_clean %>%
+  dplyr::select(RegionName, Grain_Yield_Low_Adj, Grain_Yield_Med_Adj,Grain_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.5)) +
+  coord_flip() +
+  facet_grid(Category~.) +
+  geom_jitter(aes(alpha=0.8, shape  = RegionName, colour=RegionName)) + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0))  + 
+  theme(legend.position="top") +
+  ylab(" Grain yield (t/ha)") + theme(legend.position="none")
+
+```
+
+
+
+```{r HI, echo=FALSE, warning=FALSE, include=FALSE}
+
+## Harvest Index
+
+#Doing this calculation (when both data available) just to check consistency between silage/grain yield
+#A bit in the high end here (e.g. grain overestimated or silage underestimated)
+
+data_clean %>%
+  dplyr::select(RegionName, HI_Low_Yield, HI_Med_Yield,HI_High_Yield) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.5)) +
+  coord_flip() +
+  facet_wrap(~Category) +
+  geom_jitter(aes(alpha=0.8, colour=RegionName)) + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0)) +
+  geom_hline(yintercept = 50, colour = "darkgrey") +
+  ylab("CRMs") +
+  xlab("Region") 
+
+```
+
+```{r AreaByRespondNo}
+
+# location df
+rn <- c("Waikato", "Taranaki", "Canterbury", "BayofPlenty","HawkesBay","Gisborne", "Wellington", "Manawatu-Wanganui", "Otago", "Auckland", "Northland")
+ni <- c("North", "North", "South", "North","North", "North", "North", "North", "South", "North", "North")
+df_locations <- data.frame(RegionName = rn, RegionIsland = ni)
+
+
+# Producer number per area sown
+data_clean %>%
+  dplyr::select(RegionName, Silage_Rain_ha, Silage_Irrig_ha, Grain_Rain_ha, Grain_Irrig_ha) %>%
+  mutate(MaizeAreaTot_ha = Silage_Rain_ha + Silage_Irrig_ha + Grain_Rain_ha + Grain_Irrig_ha) %>%
+  group_by(RegionName) %>%
+    summarise(respondents = n(), MaizeAreaSum = sum(MaizeAreaTot_ha)) %>%
+  ggplot(aes(x=respondents, MaizeAreaSum)) +
+  geom_point(aes(colour = RegionName), size = 5)+
+  xlab(" Number of respondents per region") +
+  ylab("Total maize area represented per region (ha)") +    # Use hollow circles
+    geom_smooth(method=lm)
+
+# Producer number per area sown
+data_clean %>%
+  dplyr::select(RegionName, Altitude_m_asl, 
+                Silage_Rain_ha, Silage_Irrig_ha, Grain_Rain_ha, Grain_Irrig_ha) %>%
+  mutate(MaizeAreaTot_ha = Silage_Rain_ha + Silage_Irrig_ha + Grain_Rain_ha + Grain_Irrig_ha) %>%
+  group_by(Altitude_m_asl,RegionName) %>%
+    summarise(respondents = n(), MaizeAreaSum = sum(MaizeAreaTot_ha), AltMed = median(Altitude_m_asl)) %>%
+  ggplot(aes(x=AltMed, MaizeAreaSum)) +
+  geom_point(aes(colour = RegionName), size = 5)+
+  xlab(" Altiture of maize area (m asl)") +
+  ylab("Total maize area represented per region (ha)")
+
+# altitude x crm x yield
+
+data_clean %>%
+  dplyr::select(RegionName, Altitude_m_asl, CRM_often_max, Silage_Yield_Med_Adj) %>%
+  ggplot(aes(x=Altitude_m_asl, CRM_often_max)) +
+  geom_point(aes(colour = RegionName), size = 5) +
+  facet_wrap(~RegionName) +
+  xlab(" Altiture of maize area (m asl)") +
+  ylab("Total maize area represented per region (ha)")
+  
+
+```
+
