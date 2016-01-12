@@ -27,7 +27,8 @@ library(lubridate)
 
 ```{r LoadData, echo=FALSE, include=FALSE}
 
-setwd("\\\\Lindfs12\\home$\\Cfleit\\My Documents\\Projects\\2015_MaizeSurveyFAR")
+#setwd("\\\\Lindfs12\\home$\\Cfleit\\My Documents\\Projects\\2015_MaizeSurveyFAR")
+setwd("\\\\Lindfs12\\home$\\Cfleit\\My Documents\\Projects\\2015_MaizeSurveyFAR\\Analysis")
 getwd()
 
 data_clean <- read.table("DataCleanAndWorked.txt",header=TRUE)
@@ -250,7 +251,8 @@ data_clean %>%
   geom_boxplot(aes(alpha=0.2)) +
   geom_jitter(aes(colour=Category)) +
   facet_grid(Category~.) + # Comment out for a single graph
-  coord_flip() + theme(legend.position="none")
+  coord_flip() + theme(legend.position="none") +
+  ylab("Sowing dates")
 
 
 ```
