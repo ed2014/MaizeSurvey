@@ -35,8 +35,12 @@ data_clean <- read.table("DataCleanAndWorked.txt",header=TRUE)
 head(data_clean)
 summary (data_clean)
 
-```
 
+# Create a classification based on climatic zones (based on Zhao's cluster analysis from Teixeira et al 2016)
+
+
+
+```
 
 ## Overal stats
 
@@ -257,6 +261,56 @@ data_clean %>%
 
 ```
 
+# sowing dates - all categories (ZALF presentation)
+
+```{r,echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
+data_clean %>%
+  dplyr::select(RegionName, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  mutate(Category = factor(Category,
+                           levels=c("EarlySowAdj",
+                                    "AverageSowAdj",
+                                    "LateSowAdj"), 
+                           labels=c("Early sowing","Common sowing","Late sowing") )) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.2) +
+  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+ # facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + 
+  # theme(legend.position="none") +
+  ylab("Sowing dates") +
+  theme(text=element_text(size=18)) +
+  xlab("Region name")
+```
+
+# New version with climate zones
+
+
+```{r,echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
+data_clean %>%
+  dplyr::select(ClimateZone, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+  mutate(RegionName =  reorder(ClimateZone, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  mutate(Category = factor(Category,
+                           levels=c("EarlySowAdj",
+                                    "AverageSowAdj",
+                                    "LateSowAdj"), 
+                           labels=c("Early sowing","Common sowing","Late sowing") )) %>%
+  ggplot(aes(x=ClimateZone, y=value)) +
+  geom_violin(alpha=0.2) +
+  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+ # facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + 
+  # theme(legend.position="none") +
+  ylab("Sowing dates") +
+  theme(text=element_text(size=18)) +
+  xlab("Region name")
+```
+
+
 ## Factors that delay maize sowing
 
 ```{r DelaySowFact, echo=FALSE,fig.height=10, fig.width=8}
@@ -301,6 +355,27 @@ data_clean %>%
 
 ```
 
+# CRM - all categories (ZALF presentation)
+
+```{r}
+#bar 
+data_clean %>%
+  dplyr::select(RegionName, CRM_max, CRM_min) %>%
+  tidyr::gather("CRMcat","value", 2:3) %>%
+  mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.1) +
+  coord_flip() +
+#  facet_grid(CRMcat~.)+
+  geom_jitter(aes(colour=RegionName), width = 0.2) +
+  ylab("Maize hybrid maturity rate (early to late-maturity)") +
+  xlab("Region")  + theme(legend.position="none")
+
+```
+
 ## Silage Yields 
 
 * lowest, average and highest values
@@ -323,6 +398,38 @@ data_clean %>%
   theme(legend.position="top") +
   ylab(" Silage yield (t/ha)") + theme(legend.position="none")
 ```
+
+# maize yield (ZALF presentation)
+
+```{r, fig.height=6, fig.width=12}
+data_clean %>%
+  dplyr::select(RegionName, Silage_Yield_Low_Adj, Silage_Yield_Med_Adj,Silage_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(Category = factor(Category,
+                           levels=c("Silage_Yield_Low_Adj",
+                                    "Silage_Yield_Med_Adj",
+                                    "Silage_Yield_High_Adj"), 
+                           labels=c("Bad year","Most years","Good year") )) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.5) +
+  coord_flip() +
+ # facet_grid(Category~.) +
+  geom_jitter(aes(colour=factor(Category)), alpha=0.5) + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0))  + 
+  scale_colour_discrete(name="Silage yield\nduring ...") +
+ # theme(legend.position="top") +
+  theme(text = element_text(size=20)) +
+  ylab("Silage yield (t/ha)") # + 
+ # theme(legend.position="none")
+
+```
+
+
+
 
 ## Grain Yields 
 
@@ -375,6 +482,110 @@ data_clean %>%
   xlab("Region") 
 
 ```
+
+
+# Material for CCII paper 
+
+```{r}
+
+# create a subset of the data close to the Kaiyuna catchment
+
+data_kai <- data_clean %>%
+  dplyr::filter(Latitude < -36.48 & Latitude > -38.94)
+
+print(paste0("Selected data-points: ", nrow(data_kai)))
+
+```
+
+## Sowing date
+
+```{r, fig.height=4, fig.width=12}
+
+s <- 16 # font size so all graphs have the same
+
+# Sowing dates --------------------------------------------------------------------------------
+
+g1 <- data_kai %>%
+  dplyr::select(ClimateZone, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", EarlySowAdj:LateSowAdj) %>%
+  mutate(RegionName =  reorder(ClimateZone, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  mutate(Category = factor(Category,
+                           levels=c("EarlySowAdj",
+                                    "AverageSowAdj",
+                                    "LateSowAdj"), 
+                           labels=c("Earliest","Common","Latest") )) %>%
+  ggplot(aes(x=value,y=..scaled.., fill=Category)) +
+  geom_density(alpha=0.5) + # Overlay with transparent density plot
+  xlab("Sowing date") + 
+  theme(legend.position="top",
+        text=element_text(size=s),
+        legend.title=element_blank(), 
+        axis.title.y = element_blank())
+
+#g1
+
+# CRM ---------------------------------------------------------------------------------------------
+
+g2 <- data_kai %>%
+  dplyr::select(ClimateZone, CRM_max,CRM_often_max, CRM_min) %>%
+  tidyr::gather("Category","value", CRM_min:CRM_max) %>%
+  mutate(Category = as.factor(Category)) %>%
+  mutate(Category = factor(Category,
+                           levels=c("CRM_min",
+                                    "CRM_often_max",
+                                    "CRM_max"), 
+                           labels=c("Shortest","Common","Longest") )) %>%
+
+  mutate(ClimateZone =  reorder(ClimateZone, value)) %>%
+  mutate(DaysToHarvest = 1.043*value + 29.817) %>% # from FAR booklet page 14 Bay of Plenty Hybrids
+  # https://www.far.org.nz/assets/files/editable//cea61fc5-92e0-45ea-af77-e2724f568643.pdf
+#  ggplot(aes(x=DaysToHarvest,y=..scaled.., fill=Category)) +
+  ggplot(aes(x=value,y=..scaled.., fill=Category)) +
+  geom_density(alpha=0.5, position="identity") + # Overlay with transparent density plot
+
+  xlab("Genotype maturity rating")  + 
+ #  xlab("Days to harvest")  + 
+  theme(legend.position="top",
+        text=element_text(size=s),
+        legend.title=element_blank(), 
+        axis.title.y = element_blank())
+
+
+# Yield ------------------------------------------------------------------------------------------------
+
+g3 <- data_kai %>%
+  dplyr::select(ClimateZone, Silage_Yield_Low_Adj, Silage_Yield_Med_Adj,Silage_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", Silage_Yield_Low_Adj:Silage_Yield_High_Adj) %>%
+  mutate(Category = factor(Category,
+                           levels=c("Silage_Yield_Low_Adj",
+                                    "Silage_Yield_Med_Adj",
+                                    "Silage_Yield_High_Adj"), 
+                           labels=c("Lowest","Common","Highest") )) %>%
+  mutate(ClimateZone =  reorder(ClimateZone, value)) %>%
+  ggplot(aes(x=value,y=..scaled.., fill=Category)) +
+  geom_density(alpha=0.5, position="identity") + # Overlay with transparent density plot
+  xlab("Silage yield (t dry matter/ha)") + 
+  theme(legend.position="top",
+        text=element_text(size=s),
+        legend.title=element_blank(), 
+        axis.title.y = element_blank())
+
+#g3
+
+library(gridExtra)
+
+g <- grid.arrange(g1, g2, g3, ncol=3)
+
+g
+
+```
+
+
+
+
+## Extra analysis
+
 
 ```{r AreaByRespondNo}
 

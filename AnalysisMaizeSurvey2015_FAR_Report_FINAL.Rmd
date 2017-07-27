@@ -1,0 +1,481 @@
+---
+title: "Report on New Zealand maize management online survey"
+output:
+  word_document: default
+  html_document: default
+---
+> ----------------------
+
+## 1. Background
+
+A total of 106 growers across New Zealand contributed to an online survey about maize management and yields. The survey was developed as a collaboration between FAR and PFR.
+
+The main aim of the survey was to provide a nationwide overview of crop performance and most common management practices utilised. In addition, the data was used to develop a prototype model able to estimate regional differences in crop yields across the country (Figure 1).
+
+This report highlights the key insights gained from the survey data.
+
+```{r Libs, echo=FALSE, include=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(lubridate)
+```
+
+
+
+```{r LoadData, echo=FALSE, include=FALSE}
+
+#setwd("\\\\Lindfs12\\home$\\Cfleit\\My Documents\\Projects\\2015_MaizeSurveyFAR")
+setwd("\\\\Lin-file\\home$\\Cfleit\\My Documents\\Projects\\2015_MaizeSurveyFAR\\Analysis")
+getwd()
+
+data_clean <- read.table("DataCleanAndWorked.txt",header=TRUE)
+head(data_clean)
+summary (data_clean)
+
+```
+
+## 2. Survey results
+
+The map shows the "aproximate" region of respondents (actual locations were modified to ensure aninymity of responses). The map shows categories of silage yield simulations by the APSIM-model parameterised using data from the survey (e.g. ranges of sowing dates). 
+
+![Figure 1. Silage yield simulation categories by APSIM-maize and aproximate survey respondent regions](Respondents_YieldCat.tiff)
+
+> ----------------------
+
+More than half of the responses came from the Waikato and Canterbury regions (Figure 2).
+
+```{r General, echo=FALSE, fig.height=7, fig.width=12}
+
+#bar 
+# data_clean %>%
+#   group_by(RegionName) %>%
+#   summarise(count = n()) %>%
+#   mutate(RegionName =  reorder(RegionName, count)) %>%
+#   ggplot(aes(x=RegionName, y=count)) +
+#   geom_bar(stat="identity") +
+#   ylab("Number of respondents") + 
+#   theme(axis.text.x = element_text(angle = 90))
+
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(RegionName) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$RegionName," (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Regions")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+
+```
+
+Figure 2. percentage of responses per region.
+
+> ----------------------
+
+More than 70% of respondents had main areas of maize in elevations <150 m above sea level (Figure 3).
+
+```{r Altitude, echo=FALSE,fig.height=7, fig.width=12, warning=FALSE}
+
+#bar 
+# data_clean %>%
+#  # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+#   group_by(Altitude_m_asl) %>%
+#   summarise(obsCount = n()) %>%
+#  # mutate(Altitude_m_asl =  reorder(Altitude_m_asl, obsCount)) %>%
+#   ggplot(aes(x=Altitude_m_asl, y=obsCount)) +
+#   geom_bar(stat="identity") +
+#   xlab("Altitude above sea level (m)") +
+#   ylab("Number of producers")  +
+#   coord_flip()
+
+
+slices <- data_clean %>%
+  group_by(Altitude_m_asl) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$Altitude_m_asl," m (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Elevation of main production areas (m)")
+
+```
+
+Figure 3. Distribution of survey respondents by altitude category.
+
+> ----------------------
+
+Most of the respondents produce maize for more than 10 years (Figure 4).
+
+```{r YearsAsProducer, echo=FALSE,fig.height=7, fig.width=12}
+
+#bar 
+# data_clean %>%
+#  # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+#   group_by(YearsAsProducer) %>%
+#   summarise(obsCount = n()) %>%
+#   mutate(YearsAsProducer =  reorder(YearsAsProducer, obsCount)) %>%
+#   ggplot(aes(x=YearsAsProducer, y=obsCount)) +
+#   geom_bar(stat="identity") +
+#   coord_flip() +
+#   xlab("Years in production") +
+#   ylab("Number of producers") 
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(YearsAsProducer) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(">",slices$YearsAsProducer," years (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Years in maize silage production")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+
+```
+
+Figure 4. Distribution of survey respondents by time as producer.
+
+> ----------------------
+
+Most of the respondents use conventional tillage methods (Figure 5).
+
+```{r CultivationType, echo=FALSE,fig.height=7, fig.width=12}
+
+#bar 
+# data_clean %>%
+#  # filter(- is.na(Altitude_m_asl)==TRUE) %>%
+#   group_by(CultivationType) %>%
+#   summarise(obsCount = n()) %>%
+#   mutate(CultivationType =  reorder(CultivationType, obsCount)) %>%
+#   ggplot(aes(x=CultivationType, y=obsCount)) +
+#   geom_bar(stat="identity") +
+#   coord_flip() +
+#   xlab("Cultivation type") +
+#   ylab("Number of producers") 
+
+
+# Simple Pie Chart
+slices <- data_clean %>%
+  group_by(CultivationType) %>%
+  summarise(obsCount = n()) %>%
+  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+
+lbls <- paste0(slices$CultivationType," cultivation (",slices$prc,"%)")
+pie(slices$obsCount, labels = lbls, main="Cultivation method")
+
+
+# ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
+
+```
+
+Figure 5. Distribution of survey respondents by tillage cultivation method.
+
+> ----------------------
+
+Most of the reported cropping areas in the North Island were rain-fed (Figure 6). Canterbury showed the highest percentage of irrigation areas .
+
+```{r Irrigation, echo=FALSE,fig.height=5, fig.width=8}
+
+#bar 
+data_clean %>%
+  group_by(RegionName) %>%
+  summarise(obsCount = n(),irrig = mean(IrrigatedPercent), 
+            mn = quantile(IrrigatedPercent, 0.25),
+            mx = quantile(IrrigatedPercent, 0.75)) %>%
+ # summarise(irrig = mean(IrrigatedPercent)) %>%
+  mutate(RegionName =  reorder(RegionName, irrig)) %>%
+  ggplot(aes(x=RegionName, y=irrig)) +
+  geom_bar(stat="identity") +
+  coord_flip()  +
+  ylab("Percentage irrigated area") +
+  xlab("Region")+
+  geom_text(aes(label = paste0("n=",obsCount), y = irrig+5)) # +
+  # geom_errorbar(aes(ymax = mx, ymin = mn), 
+  #               position=position_dodge(width=0.9), width=0.25)
+
+```
+
+Figure 6. Percent of acreage under irrigation by region. The value of n is the number of respondents per region.
+
+> ----------------------
+
+The percentage of total reported areas in silage ranged from zero in Gisborne to 100% in Taranaki (Figure 7).
+
+```{r SilageArea, echo=FALSE,fig.height=5, fig.width=8}
+data_clean %>%
+  group_by(RegionName) %>%
+   summarise(obsCount = n(),sil = mean(SilagePercent), 
+            mn = quantile(SilagePercent, 0.25),
+            mx = quantile(SilagePercent, 0.75)) %>%
+  # summarise(sil = mean(SilagePercent)) %>%
+  mutate(RegionName =  reorder(RegionName, sil)) %>%
+  ggplot(aes(x=RegionName, y=sil)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ylab("Percentage silage area")+
+  xlab("Region")+
+  geom_text(aes(label = paste0("n=",obsCount), y = sil+5))#  +
+  # geom_errorbar(aes(ymax = mx, ymin = mn), 
+  #               position=position_dodge(width=0.9), width=0.25)
+```
+
+Figure 7. Percent of acreage as silage maize by region. The value of n is the number of respondents per region.
+
+> ----------------------
+
+The range in sowing dates, for early-, most common and late-sowing conditions, is shown in Figure 8. 
+
+```{r sowDate, echo=FALSE, warning=FALSE,fig.height=10, fig.width=8, include = FALSE}
+
+# in facets
+data_clean %>%
+  dplyr::select(RegionName, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.2)) +
+  geom_jitter(aes(colour=Category)) +
+  facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + theme(legend.position="none") +
+  ylab("Sowing dates")
+
+
+```
+
+
+
+```{r,echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
+data_clean %>%
+  dplyr::select(RegionName, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  mutate(Category = factor(Category,
+                           levels=c("EarlySowAdj",
+                                    "AverageSowAdj",
+                                    "LateSowAdj"), 
+                           labels=c("Early sowing","Common sowing","Late sowing") )) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.2) +
+  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+ # facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + 
+  # theme(legend.position="none") +
+  ylab("Sowing dates") +
+  theme(text=element_text(size=18)) +
+  xlab("Region name")
+```
+
+Figure 8. Ranges of sowing dates per region for most common and early and late-ranges experienced by respondents. Boxes show quantile distributions or ranges.
+
+> ----------------------
+
+```{r,echo=FALSE, warning=FALSE,fig.height=6, fig.width=12, include = FALSE}
+data_clean %>%
+  dplyr::select(ClimateZone, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+  mutate(RegionName =  reorder(ClimateZone, value)) %>%
+  mutate(value = parse_date_time(as.character(value),"j")) %>%
+  mutate(Category = factor(Category,
+                           levels=c("EarlySowAdj",
+                                    "AverageSowAdj",
+                                    "LateSowAdj"), 
+                           labels=c("Early sowing","Common sowing","Late sowing") )) %>%
+  ggplot(aes(x=ClimateZone, y=value)) +
+  geom_violin(alpha=0.2) +
+  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+ # facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + 
+  # theme(legend.position="none") +
+  ylab("Sowing dates") +
+  theme(text=element_text(size=18)) +
+  xlab("Region name")
+```
+
+The factors that delay sowing date the most were excessive soil moisture in spring, with the exception of Canterbury where low temperatures (including risks of frost) was the main delay factor (Figure 9).
+
+```{r DelaySowFact, echo=FALSE,fig.height=4, fig.width=8}
+
+#bar 
+data_clean %>%
+  dplyr::select(RegionName, ColdTemp, WetSoil, DrySoil, NoMachine, FrostRisk) %>%
+  mutate(LowTemp=ColdTemp+FrostRisk, Others=NoMachine+DrySoil) %>%
+  dplyr::select(-ColdTemp,-FrostRisk,-DrySoil,-NoMachine) %>%
+#  tidyr::gather("DelayFactor","n", 2:6) %>%
+  tidyr::gather("DelayFactor","n", WetSoil:Others) %>%
+#  mutate(DelayFactor =  reorder(DelayFactor, n)) %>%
+  mutate(DelayFactor =  factor(DelayFactor, 
+                               levels=c("WetSoil","LowTemp","Others"), 
+                               label=c("Wet Soil","Low Temperatures","Other factors"))) %>%
+  ggplot(aes(x=RegionName, y=n)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  facet_wrap(~DelayFactor, ncol=6) +
+  xlab("Factors that delay sowing date") +
+  ylab("Number of producers") 
+
+```
+
+Figure 9. Main factors contributing to a delay in the time of maize sowing. Number of producers that selected each category. Low temperatures category include frost risk and cold spring weather conditions. Th category "others" include lack of avaible machinery and dry soil conditions.
+
+> ----------------------
+
+The lowest and highest selection of Comparative Relative Maturity (CRM) score was used to indicate the range of hybrid maturities selected by growers in earch region (Figure 10). 
+
+
+```{r CRM, echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
+
+#bar 
+# data_clean %>%
+#   dplyr::select(RegionName, CRM_max, CRM_min) %>%
+#   tidyr::gather("CRMcat","value", 2:3) %>%
+#   mutate(CRMcat = as.factor(CRMcat)) %>%
+#   mutate(RegionName =  reorder(RegionName, value)) %>%
+#   #group_by(RegionName, CRMcat) %>%
+#  # summarise(value = mean(na.exclude(value))) %>%
+#   ggplot(aes(x=RegionName, y=value)) +
+#   geom_boxplot(aes(alpha=0.1)) +
+#   coord_flip() +
+#   facet_grid(CRMcat~.)+
+#   geom_jitter(aes(colour=RegionName)) +
+#   ylab("CRMs") +
+#   xlab("Region") + theme(legend.position="none")
+
+data_clean %>%
+  dplyr::select(RegionName, CRM_max, CRM_min) %>%
+  tidyr::gather("Category","value", CRM_min:CRM_max) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  mutate(Category = factor(Category,
+                           levels=c("CRM_min",
+                                    "CRM_max"), 
+                           labels=c("Early maturity","Late maturity") )) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.2) +
+  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+ # facet_grid(Category~.) + # Comment out for a single graph
+  coord_flip() + 
+  # theme(legend.position="none") +
+  ylab("Comparative Relative Maturity (CRM)") +
+  theme(text=element_text(size=18)) +
+  xlab("Region name")
+
+```
+
+Figure 10. Distribution of respondent selection for maize hybrid maturity as Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected were classified as early- and late-maturity choices for a given region.Boxes show quantile distributions or ranges. Boxes indicate quantiles or ranges.
+
+> ----------------------
+
+```{r, include = FALSE,echo=FALSE}
+#bar 
+data_clean %>%
+  dplyr::select(RegionName, CRM_max, CRM_min) %>%
+  tidyr::gather("CRMcat","value", 2:3) %>%
+  mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.1) +
+  coord_flip() +
+#  facet_grid(CRMcat~.)+
+  geom_jitter(aes(colour=RegionName), width = 0.2) +
+  ylab("Maize hybrid maturity rate (early to late-maturity)") +
+  xlab("Region")  + theme(legend.position="none")
+
+```
+
+
+
+```{r SilageYield, echo=FALSE, warning=FALSE, fig.height=10, fig.width=8, include = FALSE}
+
+data_clean %>%
+  dplyr::select(RegionName, Silage_Yield_Low_Adj, Silage_Yield_Med_Adj,Silage_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(aes(alpha=0.5)) +
+  coord_flip() +
+  facet_grid(Category~.) +
+  geom_jitter(aes(alpha=0.8, shape  = RegionName, colour=RegionName)) + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0))  + 
+  theme(legend.position="top") +
+  ylab(" Silage yield (t/ha)") + theme(legend.position="none")
+```
+
+The yields for silage (Figure 11) and grain (Figure 12) maize were classified into low-yielding years, most common years and high-yielding years. 
+
+```{r, fig.height=6, fig.width=12, warning = FALSE, echo=FALSE}
+data_clean %>%
+  dplyr::select(RegionName, Silage_Yield_Low_Adj, Silage_Yield_Med_Adj,Silage_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(Category = factor(Category,
+                           levels=c("Silage_Yield_Low_Adj",
+                                    "Silage_Yield_Med_Adj",
+                                    "Silage_Yield_High_Adj"), 
+                           labels=c("Low-yielding years","Common yields","High-yielding years") )) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.5) +
+  coord_flip() +
+ # facet_grid(Category~.) +
+  geom_jitter(aes(colour=factor(Category)), alpha=0.5) + 
+  scale_colour_discrete(name="Category") +
+ # theme(legend.position="top") +
+  theme(text = element_text(size=20)) +
+  xlab("Region Name")  + 
+  ylab("Silage yield (t/ha)") # + 
+ # theme(legend.position="none")
+
+```
+
+Figure 11. Distribution of silage maize yields per region. Boxes show quantile distributions or ranges.
+
+> ----------------------
+
+
+
+```{r, fig.height=6, fig.width=12, warning = FALSE, echo=FALSE}
+data_clean %>%
+  dplyr::select(RegionName, Grain_Yield_Low_Adj, Grain_Yield_Med_Adj,Grain_Yield_High_Adj) %>%
+  tidyr::gather("Category","value", 2:4) %>%
+ # mutate(CRMcat = as.factor(CRMcat)) %>%
+  mutate(Category = factor(Category,
+                           levels=c("Grain_Yield_Low_Adj",
+                                    "Grain_Yield_Med_Adj",
+                                    "Grain_Yield_High_Adj"), 
+                           labels=c("Low-yielding years","Common yields","High-yielding years") )) %>%
+  mutate(RegionName =  reorder(RegionName, value)) %>%
+  #group_by(RegionName, CRMcat) %>%
+ # summarise(value = mean(na.exclude(value))) %>%
+  ggplot(aes(x=RegionName, y=value)) +
+  geom_boxplot(alpha=0.5) +
+  coord_flip() +
+ # facet_grid(Category~.) +
+  geom_jitter(aes(colour=factor(Category)), alpha=0.5) + 
+  scale_colour_discrete(name="Category") +
+ # theme(legend.position="top") +
+  theme(text = element_text(size=20)) +
+  xlab("Region Name")  + 
+  ylab("Grain yield (t/ha)") # + 
+ # theme(legend.position="none")
+
+```
+
+Figure 12. Distribution of grain maize yields per region. Boxes show quantile distributions or ranges.
+
+> ----------------------
