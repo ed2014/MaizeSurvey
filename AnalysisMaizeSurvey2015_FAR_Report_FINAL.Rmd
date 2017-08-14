@@ -8,11 +8,12 @@ output:
 
 ## 1. Background
 
-A total of 106 growers across New Zealand contributed to an online survey about maize management and yields. The survey was developed as a collaboration between FAR and PFR.
+A total of XXX maize growers in the FAR database were contacted by email and asked to contribute to an online survey on crop management and yields (Appendix). 
 
-The main aim of the survey was to provide a nationwide overview of crop performance and most common management practices utilised. In addition, the data was used to develop a prototype model able to estimate regional differences in crop yields across the country (Figure 1).
+The main aim of the survey was to provide a nationwide overview of crop performance and the most common management practices utilised. In addition, the data was used to develop a prototype model able to estimate regional differences in crop yields across the country (Figure 1).
 
-This report highlights the key insights gained from the survey data.
+This report highlights the key insights gained from the survey data with responses from 106 maize growers across New Zealand.
+
 
 ```{r Libs, echo=FALSE, include=FALSE}
 library(tidyr)
@@ -37,9 +38,9 @@ summary (data_clean)
 
 ## 2. Survey results
 
-The map shows the "aproximate" region of respondents (actual locations were modified to ensure aninymity of responses). The map shows categories of silage yield simulations by the APSIM-model parameterised using data from the survey (e.g. ranges of sowing dates). 
+The map shows the "aproximate" region of respondents (actual locations were modified to ensure anonymity of responses). The map shows categories of silage yield simulations by the APSIM-model parameterised using data from the survey (e.g. ranges of sowing dates).
 
-![Figure 1. Silage yield simulation categories by APSIM-maize and aproximate survey respondent regions](Respondents_YieldCat.tiff)
+![Figure 1. Silage yield simulation categories by APSIM-maize and approximate survey respondent regions.](Respondents_YieldCat.tiff)
 
 > ----------------------
 
@@ -63,7 +64,8 @@ More than half of the responses came from the Waikato and Canterbury regions (Fi
 slices <- data_clean %>%
   group_by(RegionName) %>%
   summarise(obsCount = n()) %>%
-  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+  mutate(prc = round((obsCount/sum(obsCount))*100),2) %>% 
+  na.omit() # Dave Saville suggestion of not including non-respondents 
 
 lbls <- paste0(slices$RegionName," (",slices$prc,"%)")
 pie(slices$obsCount, labels = lbls, main="Regions")
@@ -74,11 +76,11 @@ pie(slices$obsCount, labels = lbls, main="Regions")
 
 ```
 
-Figure 2. percentage of responses per region.
+Figure 2. Percentage of survey responses per region.
 
 > ----------------------
 
-More than 70% of respondents had main areas of maize in elevations <150 m above sea level (Figure 3).
+More than 70% of respondents had main areas of maize in elevations <200 m above sea level (Figure 3).
 
 ```{r Altitude, echo=FALSE,fig.height=7, fig.width=12, warning=FALSE}
 
@@ -93,12 +95,19 @@ More than 70% of respondents had main areas of maize in elevations <150 m above 
 #   xlab("Altitude above sea level (m)") +
 #   ylab("Number of producers")  +
 #   coord_flip()
-
+unique(data_clean$Altitude_m_asl)
 
 slices <- data_clean %>%
   group_by(Altitude_m_asl) %>%
   summarise(obsCount = n()) %>%
-  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+  mutate(prc = round((obsCount/sum(obsCount))*100),2) %>% 
+  na.omit() %>%
+  ungroup() %>%
+  # Dave Saville suggestion of not including non-respondents
+  mutate(Altitude_m_asl = factor(Altitude_m_asl, 
+                                 levels=c(0,30, 76, 151, 251, 400, 500),
+                                 labels=c("0","10-50","51-100" ,"101-200", "201-300","301-500",">500 ")
+                                 )) 
 
 lbls <- paste0(slices$Altitude_m_asl," m (",slices$prc,"%)")
 pie(slices$obsCount, labels = lbls, main="Elevation of main production areas (m)")
@@ -109,7 +118,7 @@ Figure 3. Distribution of survey respondents by altitude category.
 
 > ----------------------
 
-Most of the respondents produce maize for more than 10 years (Figure 4).
+Most of the respondents have grown maize for more than 10 years (Figure 4).
 
 ```{r YearsAsProducer, echo=FALSE,fig.height=7, fig.width=12}
 
@@ -141,11 +150,11 @@ pie(slices$obsCount, labels = lbls, main="Years in maize silage production")
 
 ```
 
-Figure 4. Distribution of survey respondents by time as producer.
+Figure 4. Distribution of survey respondents by years as a grower.
 
 > ----------------------
 
-Most of the respondents use conventional tillage methods (Figure 5).
+Most of the respondents use conventional cultivation methods (Figure 5).
 
 ```{r CultivationType, echo=FALSE,fig.height=7, fig.width=12}
 
@@ -176,11 +185,11 @@ pie(slices$obsCount, labels = lbls, main="Cultivation method")
 
 ```
 
-Figure 5. Distribution of survey respondents by tillage cultivation method.
+Figure 5. Distribution of survey respondents by cultivation method.
 
 > ----------------------
 
-Most of the reported cropping areas in the North Island were rain-fed (Figure 6). Canterbury showed the highest percentage of irrigation areas .
+Most of the reported cropping areas in the North Island did not use irrigation (Figure 6). Canterbury showed the highest percentage of irrigation areas.
 
 ```{r Irrigation, echo=FALSE,fig.height=5, fig.width=8}
 
@@ -231,7 +240,7 @@ Figure 7. Percent of acreage as silage maize by region. The value of n is the nu
 
 > ----------------------
 
-The range in sowing dates, for early-, most common and late-sowing conditions, is shown in Figure 8. 
+The range in sowing dates, for early-, most commonly experienced and late-sowing conditions, is shown in Figure 8.
 
 ```{r sowDate, echo=FALSE, warning=FALSE,fig.height=10, fig.width=8, include = FALSE}
 
@@ -275,7 +284,7 @@ data_clean %>%
   xlab("Region name")
 ```
 
-Figure 8. Ranges of sowing dates per region for most common and early and late-ranges experienced by respondents. Boxes show quantile distributions or ranges.
+Figure 8. Most commonly experienced, early- and late-sowing dates reported by respondents per region. Boxes show quantile distributions or ranges.
 
 > ----------------------
 
@@ -301,7 +310,7 @@ data_clean %>%
   xlab("Region name")
 ```
 
-The factors that delay sowing date the most were excessive soil moisture in spring, with the exception of Canterbury where low temperatures (including risks of frost) was the main delay factor (Figure 9).
+The most common factor that delays sowing date were excessive soil moisture in spring, with the exception of Canterbury where low temperatures (including risks of frost) was the main delay factor (Figure 9).
 
 ```{r DelaySowFact, echo=FALSE,fig.height=4, fig.width=8}
 
@@ -325,11 +334,11 @@ data_clean %>%
 
 ```
 
-Figure 9. Main factors contributing to a delay in the time of maize sowing. Number of producers that selected each category. Low temperatures category include frost risk and cold spring weather conditions. Th category "others" include lack of avaible machinery and dry soil conditions.
+Figure 9. Main factors contributing to a delay in the time of maize sowing. Number of producers that selected each category. Low temperatures category include frost risk and cold spring weather conditions. The category "others" include lack of available machinery and dry soil conditions.
 
 > ----------------------
 
-The lowest and highest selection of Comparative Relative Maturity (CRM) score was used to indicate the range of hybrid maturities selected by growers in earch region (Figure 10). 
+The lowest and highest selection of Comparative Relative Maturity (CRM) score was used to indicate the range of hybrid maturities selected by growers in earch region (Figure 10).
 
 
 ```{r CRM, echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
@@ -370,7 +379,7 @@ data_clean %>%
 
 ```
 
-Figure 10. Distribution of respondent selection for maize hybrid maturity as Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected were classified as early- and late-maturity choices for a given region.Boxes show quantile distributions or ranges. Boxes indicate quantiles or ranges.
+Figure 10. Distribution of respondent selection for maize hybrid maturity as Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected were classified as early- and late-maturity choices for a given region. Boxes show quantile distributions or ranges. Boxes indicate quantiles or ranges.
 
 > ----------------------
 
@@ -414,7 +423,7 @@ data_clean %>%
   ylab(" Silage yield (t/ha)") + theme(legend.position="none")
 ```
 
-The yields for silage (Figure 11) and grain (Figure 12) maize were classified into low-yielding years, most common years and high-yielding years. 
+The yields for silage (Figure 11) and grain (Figure 12) maize were classified into low-yielding years, average years and high-yielding years.
 
 ```{r, fig.height=6, fig.width=12, warning = FALSE, echo=FALSE}
 data_clean %>%
@@ -479,3 +488,16 @@ data_clean %>%
 Figure 12. Distribution of grain maize yields per region. Boxes show quantile distributions or ranges.
 
 > ----------------------
+
+## 3. Summary
+
+The overall insights from this survey were:
+* Sowing dates and genotype maturities were widely variable, even within similar regions
+* Wet soils were the most common factor delaying sowing of maize crops
+* Most maize growers utilise conventional cultivation methods
+* Silage yields average ~20 t/ha; mostly ranging between 15 and 25 t/ha
+* Grain yields average ~12 t/ha; mostly ranging between 9 and 15 t/ha
+
+
+## Acknowledgements
+We sincerely thank the maize producers who contributed to this survey. 
