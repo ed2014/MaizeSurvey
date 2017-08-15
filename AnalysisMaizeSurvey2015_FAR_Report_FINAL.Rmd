@@ -378,7 +378,7 @@ data_clean %>%
   mutate(Category = factor(Category,
                            levels=c("CRM_min",
                                     "CRM_max"), 
-                           labels=c("Early maturity","Late maturity") )) %>%
+                           labels=c("Early maturity choice","Late maturity choice") )) %>%
   ggplot(aes(x=RegionName, y=value)) +
 #  geom_boxplot(alpha=0.2) +
 #  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
@@ -392,14 +392,13 @@ data_clean %>%
 #  facet_grid(Category~.) + # Comment out for a single graph
   coord_flip() + 
   geom_line(size=4, alpha=0.5, aes(colour=Category),position = position_dodge(width = 0.5)) +
-  # theme(legend.position="none") +
+  theme(legend.position="top") +
   ylab("Comparative Relative Maturity (CRM)") +
   theme(text=element_text(size=18)) +
   xlab("Region name")
 
 ```
-
-Figure 10. Distribution of respondent selection for maize hybrid maturity as Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected were classified as early- and late-maturity choices for a given region. Lines indicate range of responses. Calculation assumes mid-points of sowing date for each category by combining "most commonly used" and "sometimes used" categories.
+Figure 10. Range of hybrid maturity selection based on Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected by respondednts were classified as early- and late-maturity choices for a given region. Lines indicate range of responses. Calculation assumes mid-points of CRM categories.
 
 > ----------------------
 
