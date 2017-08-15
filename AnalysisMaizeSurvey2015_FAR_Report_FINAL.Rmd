@@ -95,7 +95,7 @@ More than 70% of respondents had main areas of maize in elevations <200 m above 
 #   xlab("Altitude above sea level (m)") +
 #   ylab("Number of producers")  +
 #   coord_flip()
-unique(data_clean$Altitude_m_asl)
+#unique(data_clean$Altitude_m_asl)
 
 slices <- data_clean %>%
   group_by(Altitude_m_asl) %>%
@@ -139,14 +139,23 @@ Most of the respondents have grown maize for more than 10 years (Figure 4).
 slices <- data_clean %>%
   group_by(YearsAsProducer) %>%
   summarise(obsCount = n()) %>%
-  mutate(prc = round((obsCount/sum(obsCount))*100),2)
+  mutate(prc = round((obsCount/sum(obsCount))*100),2) %>%
+  na.omit() %>%
+  ungroup() %>%
+  # Dave Saville suggestion of not including non-respondents
+  mutate(YearsAsProducer = factor(YearsAsProducer, 
+                                 levels=c(2,4, 8, 11),
+                                 labels=c("<2","2 to 5",
+                                          "6 to 10" ,">10")
+                                 )) 
 
-lbls <- paste0(">",slices$YearsAsProducer," years (",slices$prc,"%)")
+lbls <- paste0(slices$YearsAsProducer," years (",slices$prc,"%)")
 pie(slices$obsCount, labels = lbls, main="Years in maize silage production")
 
 
 # ggsave(file=paste0("Fig_ANOVA_SS_",methodCalc[met], ".tiff"), dpi = 300)
 
+#unique(data_clean$YearsAsProducer)
 
 ```
 
@@ -212,7 +221,7 @@ data_clean %>%
 
 ```
 
-Figure 6. Percent of acreage under irrigation by region. The value of n is the number of respondents per region.
+Figure 6. Average percentage of maize acreage under irrigation per grower by region. Calculation assumes mid-points of acreage for each category with a maximum area of 100 ha. The value of n is the number of respondents per region.
 
 > ----------------------
 
@@ -236,7 +245,7 @@ data_clean %>%
   #               position=position_dodge(width=0.9), width=0.25)
 ```
 
-Figure 7. Percent of acreage as silage maize by region. The value of n is the number of respondents per region.
+Figure 7. Average percentage of maize acreage as silage per grower by region. Calculation assumes mid-points of acreage for each category with a maximum area of 100 ha. The value of n is the number of respondents per region.
 
 > ----------------------
 
@@ -262,7 +271,7 @@ data_clean %>%
 
 
 
-```{r,echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
+```{r,echo=FALSE, warning=FALSE,fig.height=10, fig.width=12}
 data_clean %>%
   dplyr::select(RegionName, EarlySowAdj, AverageSowAdj,LateSowAdj) %>%
   tidyr::gather("Category","value", 2:4) %>%
@@ -274,9 +283,12 @@ data_clean %>%
                                     "LateSowAdj"), 
                            labels=c("Early sowing","Common sowing","Late sowing") )) %>%
   ggplot(aes(x=RegionName, y=value)) +
-  geom_boxplot(alpha=0.2) +
-  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
- # facet_grid(Category~.) + # Comment out for a single graph
+#  geom_boxplot(alpha=0.2) +
+  geom_jitter( width = 0.1, alpha = 0.5, size = 2, shape = 1) +
+  scale_shape_discrete(solid=F) +
+  geom_line(size=2, alpha=0.5, aes(colour=Category)) +
+#  geom_point(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+  facet_grid(Category~.) + # Comment out for a single graph
   coord_flip() + 
   # theme(legend.position="none") +
   ylab("Sowing dates") +
@@ -284,7 +296,7 @@ data_clean %>%
   xlab("Region name")
 ```
 
-Figure 8. Most commonly experienced, early- and late-sowing dates reported by respondents per region. Boxes show quantile distributions or ranges.
+Figure 8. Most commonly experienced, early- and late-sowing dates reported by respondents per region. Lines indicate range of responses. Calculation assumes mid-points of sowing date for each category.
 
 > ----------------------
 
@@ -310,7 +322,7 @@ data_clean %>%
   xlab("Region name")
 ```
 
-The most common factor that delays sowing date were excessive soil moisture in spring, with the exception of Canterbury where low temperatures (including risks of frost) was the main delay factor (Figure 9).
+The most common factor that delay sowing date was excessive soil moisture in spring, with the exception of Canterbury where low temperatures (including risks of frost) was the main delay factor (Figure 9).
 
 ```{r DelaySowFact, echo=FALSE,fig.height=4, fig.width=8}
 
@@ -330,11 +342,11 @@ data_clean %>%
   coord_flip() +
   facet_wrap(~DelayFactor, ncol=6) +
   xlab("Factors that delay sowing date") +
-  ylab("Number of producers") 
+  ylab("Number of respondents") 
 
 ```
 
-Figure 9. Main factors contributing to a delay in the time of maize sowing. Number of producers that selected each category. Low temperatures category include frost risk and cold spring weather conditions. The category "others" include lack of available machinery and dry soil conditions.
+Figure 9. Main factors contributing to a delay in the time of maize sowing. Number of producers that selected each category. "Low temperatures" category includes frost risk and low soil temperatures. The category "others" includes lack of available machinery and vary dry soil conditions.
 
 > ----------------------
 
@@ -368,10 +380,18 @@ data_clean %>%
                                     "CRM_max"), 
                            labels=c("Early maturity","Late maturity") )) %>%
   ggplot(aes(x=RegionName, y=value)) +
-  geom_boxplot(alpha=0.2) +
-  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
- # facet_grid(Category~.) + # Comment out for a single graph
+#  geom_boxplot(alpha=0.2) +
+#  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
+  geom_jitter( width = 0.1, 
+               alpha = 0.5,
+               size = 2, 
+               shape = 1,
+               aes(colour=Category)) +
+# geom_point( aes(colour=Category), position = position_jitterdodge()) +
+  scale_shape_discrete(solid=F) +
+#  facet_grid(Category~.) + # Comment out for a single graph
   coord_flip() + 
+  geom_line(size=4, alpha=0.5, aes(colour=Category),position = position_dodge(width = 0.5)) +
   # theme(legend.position="none") +
   ylab("Comparative Relative Maturity (CRM)") +
   theme(text=element_text(size=18)) +
@@ -379,7 +399,7 @@ data_clean %>%
 
 ```
 
-Figure 10. Distribution of respondent selection for maize hybrid maturity as Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected were classified as early- and late-maturity choices for a given region. Boxes show quantile distributions or ranges. Boxes indicate quantiles or ranges.
+Figure 10. Distribution of respondent selection for maize hybrid maturity as Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected were classified as early- and late-maturity choices for a given region. Lines indicate range of responses. Calculation assumes mid-points of sowing date for each category by combining "most commonly used" and "sometimes used" categories.
 
 > ----------------------
 
