@@ -284,11 +284,23 @@ data_clean %>%
                            labels=c("Early sowing","Common sowing","Late sowing") )) %>%
   ggplot(aes(x=RegionName, y=value)) +
 #  geom_boxplot(alpha=0.2) +
-  geom_jitter( width = 0.1, alpha = 0.5, size = 2, shape = 1) +
-  scale_shape_discrete(solid=F) +
-  geom_line(size=2, alpha=0.5, aes(colour=Category)) +
+ # geom_jitter( width = 0.1, alpha = 0.5, size = 2, shape = 1) +
+#  scale_shape_discrete(solid=F) +
+#  geom_line(size=2, alpha=0.5, aes(colour=Category)) +
+    # geom_jitter( width = 0.1, 
+    #            alpha = 0.5,
+    #            size = 2, 
+    #            shape = 1,
+    #            aes(colour=Category)) +
+  geom_point(aes(colour=Category),
+             shape = 21, alpha = 0.8, 
+             position=position_jitterdodge(dodge.width = 0.5)) +
+  scale_shape_discrete(solid=F) +  
+  geom_line(size=4, alpha=0.3, 
+            aes(colour=Category),
+            position = position_dodge(width = 0.5)) +
 #  geom_point(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
-  facet_grid(Category~.) + # Comment out for a single graph
+#  facet_grid(Category~.) + # Comment out for a single graph
   coord_flip() + 
   # theme(legend.position="none") +
   ylab("Sowing dates") +
@@ -296,7 +308,7 @@ data_clean %>%
   xlab("Region name")
 ```
 
-Figure 8. Most commonly experienced, early- and late-sowing dates reported by respondents per region. Lines indicate range of responses. Calculation assumes mid-points of sowing date for each category.
+Figure 8. Most commonly experienced, early- and late-sowing dates reported by respondents per region. Points are individual responses and lines indicate range of responses. Calculation assumes mid-points of sowing date for each category.
 
 > ----------------------
 
@@ -355,6 +367,8 @@ The lowest and highest selection of Comparative Relative Maturity (CRM) score wa
 
 ```{r CRM, echo=FALSE, warning=FALSE,fig.height=6, fig.width=12}
 
+# FIXME: Saville suggested using the common rare info explicitly
+
 #bar 
 # data_clean %>%
 #   dplyr::select(RegionName, CRM_max, CRM_min) %>%
@@ -387,11 +401,11 @@ data_clean %>%
                size = 2, 
                shape = 1,
                aes(colour=Category)) +
-# geom_point( aes(colour=Category), position = position_jitterdodge()) +
-  scale_shape_discrete(solid=F) +
+  scale_shape_discrete(solid=F) +  
+  geom_line(size=4, alpha=0.5, aes(colour=Category),position = position_dodge(width = 0.5)) +
 #  facet_grid(Category~.) + # Comment out for a single graph
   coord_flip() + 
-  geom_line(size=4, alpha=0.5, aes(colour=Category),position = position_dodge(width = 0.5)) +
+
   theme(legend.position="top") +
   ylab("Comparative Relative Maturity (CRM)") +
   theme(text=element_text(size=18)) +
@@ -433,7 +447,7 @@ data_clean %>%
   #group_by(RegionName, CRMcat) %>%
  # summarise(value = mean(na.exclude(value))) %>%
   ggplot(aes(x=RegionName, y=value)) +
-  geom_boxplot(aes(alpha=0.5)) +
+ # geom_boxplot(aes(alpha=0.5)) +
   coord_flip() +
   facet_grid(Category~.) +
   geom_jitter(aes(alpha=0.8, shape  = RegionName, colour=RegionName)) + 
@@ -458,10 +472,18 @@ data_clean %>%
   #group_by(RegionName, CRMcat) %>%
  # summarise(value = mean(na.exclude(value))) %>%
   ggplot(aes(x=RegionName, y=value)) +
-  geom_boxplot(alpha=0.5) +
+#    geom_line(size=4, alpha=0.5, aes(colour=Category),position = position_dodge(width = 0.5)) +
+    # geom_jitter( width = 0.1, 
+    #            alpha = 0.5,
+    #            size = 2, 
+    #            shape = 1,
+    #            aes(colour=Category)) +
+#  scale_shape_discrete(solid=F) +  
+
+  geom_boxplot(alpha=0.5, width=0.5) +
   coord_flip() +
- # facet_grid(Category~.) +
-  geom_jitter(aes(colour=factor(Category)), alpha=0.5) + 
+#  facet_grid(Category~.) +
+  geom_jitter(aes(colour=factor(Category)), alpha=0.5, width=0.1) + 
   scale_colour_discrete(name="Category") +
  # theme(legend.position="top") +
   theme(text = element_text(size=20)) +
@@ -471,7 +493,7 @@ data_clean %>%
 
 ```
 
-Figure 11. Distribution of silage maize yields per region. Boxes show quantile distributions or ranges.
+Figure 11. Distribution of silage maize yields per region. Boxes show quantile distributions or ranges.Calculation assumes mid-points of CRM categories.
 
 > ----------------------
 
@@ -491,10 +513,10 @@ data_clean %>%
   #group_by(RegionName, CRMcat) %>%
  # summarise(value = mean(na.exclude(value))) %>%
   ggplot(aes(x=RegionName, y=value)) +
-  geom_boxplot(alpha=0.5) +
+  geom_boxplot(alpha=0.5, width=0.5) +
   coord_flip() +
  # facet_grid(Category~.) +
-  geom_jitter(aes(colour=factor(Category)), alpha=0.5) + 
+  geom_jitter(aes(colour=factor(Category)), alpha=0.5, width=0.1) + 
   scale_colour_discrete(name="Category") +
  # theme(legend.position="top") +
   theme(text = element_text(size=20)) +
@@ -504,7 +526,7 @@ data_clean %>%
 
 ```
 
-Figure 12. Distribution of grain maize yields per region. Boxes show quantile distributions or ranges.
+Figure 12. Distribution of grain maize yields reported by respondents per region. Boxes show 25th and 75th percentile central line is the median value.Calculation assumes mid-points of CRM categories.
 
 > ----------------------
 
@@ -512,10 +534,10 @@ Figure 12. Distribution of grain maize yields per region. Boxes show quantile di
 
 The overall insights from this survey were:
 * Sowing dates and genotype maturities were widely variable, even within similar regions
-* Wet soils were the most common factor delaying sowing of maize crops
+* Wet soil was the most common factor delaying sowing of maize crops
 * Most maize growers utilise conventional cultivation methods
-* Silage yields average ~20 t/ha; mostly ranging between 15 and 25 t/ha
-* Grain yields average ~12 t/ha; mostly ranging between 9 and 15 t/ha
+* Silage yields were on average ~20 t/ha; mostly ranging between 15 and 25 t/ha
+* Grain yields were on average ~12 t/ha; mostly ranging between 9 and 15 t/ha
 
 
 ## Acknowledgements
