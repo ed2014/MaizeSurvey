@@ -396,11 +396,14 @@ data_clean %>%
   ggplot(aes(x=RegionName, y=value)) +
 #  geom_boxplot(alpha=0.2) +
 #  geom_jitter(aes(colour=Category), width = 0.2, alpha = 0.5, size = 2) +
-  geom_jitter( width = 0.1, 
-               alpha = 0.5,
-               size = 2, 
-               shape = 1,
-               aes(colour=Category)) +
+  # geom_jitter( width = 0.1, 
+  #              alpha = 0.5,
+  #              size = 2, 
+  #              shape = 1,
+  #              aes(colour=Category)) +
+    geom_point(aes(colour=Category),
+             shape = 21, alpha = 0.8, 
+             position=position_jitterdodge(dodge.width = 0.5)) +
   scale_shape_discrete(solid=F) +  
   geom_line(size=4, alpha=0.5, aes(colour=Category),position = position_dodge(width = 0.5)) +
 #  facet_grid(Category~.) + # Comment out for a single graph
@@ -412,7 +415,7 @@ data_clean %>%
   xlab("Region name")
 
 ```
-Figure 10. Range of hybrid maturity selection based on Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected by respondednts were classified as early- and late-maturity choices for a given region. Lines indicate range of responses. Calculation assumes mid-points of CRM categories.
+Figure 10. Range of hybrid maturity selection based on Comparative Relative Maturity (CRM). Maximum and minimum CRM values selected by respondednts were classified as early- and late-maturity choices for a given region. Points are individual responses and lines indicate range of responses. Calculation assumes mid-points of CRM categories.
 
 > ----------------------
 
