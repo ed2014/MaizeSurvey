@@ -510,14 +510,14 @@ data_clean %>%
                            labels=c("Low-yielding years","Common yields","High-yielding years") )) %>%
   mutate(RegionName =  reorder(RegionName, value)) %>%
   ggplot(aes(x=RegionName, y=value)) +
-  geom_line(size=3, alpha=0.3, aes(colour=Category),position = position_dodge(width = 0.5)) +
- # geom_boxplot(aes(colour=Category),position = position_dodge(width = 0.5), alpha=0.5) +
+#  scale_shape_discrete(solid=F) +  
+  geom_line(size=4, alpha=0.3, aes(colour=Category),position = position_dodge(width = 0.7)) +
   geom_point(aes(colour=Category),
-             shape = 21, alpha = 0.8, size=2,
-             position=position_jitterdodge(dodge.width = 0.5)) +
- scale_shape_discrete(solid=F) +
+             shape = 21, alpha = 1, 
+             position=position_jitterdodge(dodge.width = 0.7)) +
+# scale_shape_discrete(solid=F) +
   coord_flip() +
-  scale_colour_discrete(name="Category") +
+#  scale_colour_discrete(name="Category") +
 #  theme(legend.position="top") +
   theme(text = element_text(size=20)) +
   xlab("Region Name")  + 
